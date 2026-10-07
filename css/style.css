@@ -469,3 +469,24 @@ body.dev .panel, body.dev .panel-flat { outline: 1px dashed rgba(0,255,120,.5); 
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   .fx-grain { display: none; }
 }
+
+/* ---------- message box (EmailJS) ---------- */
+.mailbox { position: relative; overflow: hidden; animation: slideR .5s both; }
+.mailbox .bar4 { height: 6px; background: linear-gradient(90deg, var(--accent), var(--pink)); }
+.mb-in { padding: 24px 28px 28px; }
+.mb-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.mb-head h2 { font-size: clamp(34px, 4.6vw, 52px); margin-top: 2px; }
+.mb-pill { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; border: 1px solid rgba(111,190,68,.5); color: var(--green); font-size: 12px; white-space: nowrap; background: rgba(111,190,68,.08); }
+.mb-pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: blink 1.4s steps(1) infinite; }
+.mb-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+.mailbox .field textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+.mailbox .field input::placeholder, .mailbox .field textarea::placeholder { color: rgba(255,255,255,.35); }
+.mail-send { width: 100%; padding: 14px 16px; font-size: 17px; }
+.mail-send:disabled { opacity: .7; cursor: progress; transform: none; }
+.mail-send.busy svg { animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg) } }
+.mail-status { margin-top: 12px; padding: 10px 14px; border-left: 4px solid var(--accent); background: rgba(255,255,255,.07); display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; font-size: 14px; animation: fadeUp .3s both; }
+.mail-status.ok { border-left-color: var(--green); background: rgba(111,190,68,.12); }
+.mail-status.err { border-left-color: var(--red); background: rgba(214,58,47,.14); }
+.mail-status.warn { border-left-color: var(--accent); }
+@media (max-width: 760px) { .mb-in { padding: 18px 16px 20px; } .mb-row { grid-template-columns: 1fr; } .mb-pill { display: none; } }

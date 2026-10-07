@@ -157,37 +157,68 @@ function pageEducation() {
 
 /* ---------- CONTACT ---------- */
 function pageContact() {
-  let showForm = false, notif = null
-  const right = h('div'), phoneList = h('div', { style: { position: 'relative', height: '100%', overflowY: 'auto' } })
-  const toForm = () => { showForm = true; if (notif) notif.remove(); play('accept'); drawRight() }
-  const drawRight = () => {
-    if (!showForm) {
-      clear(right).append(h('div.panel.p5', h('div.label.accent', 'Incoming'), h('h2.title', { style: { fontSize: '48px' } }, 'Let’s work together'), h('p', { style: { marginTop: '12px', color: 'rgba(255,255,255,.8)' } }, 'Tap REPLY on the phone to write a message, or use one of the quick actions.'),
-        h('div.row', { style: { marginTop: '20px' } }, h('button.btn.primary', { onclick: toForm }, ico('msg', 15), 'Reply'), h('button.btn', { onclick: () => openExternal('email') }, ico('mail', 15), 'Email'), h('button.btn', { onclick: () => openExternal('whatsapp') }, ico('whatsapp', 15), 'WhatsApp'), h('a.btn', { href: OWNER.phoneHref, onclick: () => play('click') }, ico('phone', 15), 'Call'), h('button.btn', { onclick: () => openExternal('linkedin') }, ico('linkedin', 15), 'LinkedIn'), h('button.btn', { onclick: () => openExternal('github') }, ico('github', 15), 'GitHub'))))
-      return
+  let notif = null, nameIn, mailIn, subjIn, msgIn
+  const phoneList = h('div', { style: { position: 'relative', height: '100%', overflowY: 'auto' } })
+  const focusForm = () => { play('accept'); if (notif) notif.remove(); nameIn && nameIn.focus() }
+
+  /* --- the message box --- */
+  nameIn = h('input', { autocomplete: 'name', maxlength: 80, required: true, placeholder: 'Your name' })
+  mailIn = h('input', { type: 'email', autocomplete: 'email', maxlength: 120, required: true, placeholder: 'you@example.com' })
+  subjIn = h('input', { maxlength: 120, placeholder: 'What is this about? (optional)' })
+  msgIn = h('textarea', { rows: 6, maxlength: EMAILJS.maxMessageLength, required: true, placeholder: 'Tell me about the project, role or idea…' })
+  const trap = h('input', { name: 'website', tabindex: '-1', autocomplete: 'off', 'aria-hidden': 'true', style: { position: 'absolute', left: '-9999px', opacity: 0 } }) // honeypot for bots
+  const count = h('span.ui.dim', { style: { fontSize: '12px' } }, '0 / ' + EMAILJS.maxMessageLength)
+  msgIn.addEventListener('input', () => { count.textContent = msgIn.value.length + ' / ' + EMAILJS.maxMessageLength })
+  const status = h('div.mail-status', { role: 'status', 'aria-live': 'polite', hidden: true })
+  const say = (kind, text, extra) => { status.hidden = !text; status.className = 'mail-status ' + (kind || ''); clear(status); if (text) status.append(h('span', text), extra || null) }
+  const btn = h('button.btn.primary.mail-send', { type: 'submit' }, ico('send', 15), h('span', 'Send message'))
+  const setBusy = (b) => { btn.disabled = b; btn.classList.toggle('busy', b); btn.lastChild.textContent = b ? 'Sending…' : 'Send message' }
+  const gmailFallback = () => h('button.btn.sm', { type: 'button', onclick: () => openUrl(composeUrl(subjIn.value || 'Message from your portfolio', msgIn.value + '\n\n— ' + nameIn.value + ' (' + mailIn.value + ')')) }, ico('mail', 13), 'Open Gmail instead')
+  const form = h('form.mailbox.panel', { novalidate: true, onsubmit: async (e) => {
+    e.preventDefault()
+    if (trap.value) return // bot
+    const f = { name: nameIn.value.trim(), email: mailIn.value.trim(), subject: subjIn.value.trim(), message: msgIn.value.trim() }
+    if (!f.name) { say('err', 'Please enter your name.'); nameIn.focus(); play('error'); return }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email)) { say('err', 'Please enter a valid email so I can reply.'); mailIn.focus(); play('error'); return }
+    if (f.message.length < 10) { say('err', 'Your message is a bit short. Add a few more details.'); msgIn.focus(); play('error'); return }
+    setBusy(true); say('info', 'Transmitting…'); play('click')
+    const r = await sendMail(f)
+    setBusy(false)
+    if (r.ok) {
+      play('accept'); say('ok', 'Delivered. Your message is in Yaman’s inbox. He’ll reply to ' + f.email + '.')
+      missionPassed('Yaman will reply soon', 'message sent')
+      form.reset(); count.textContent = '0 / ' + EMAILJS.maxMessageLength
+    } else if (r.reason === 'notconfigured') {
+      play('error'); say('warn', 'The email service isn’t switched on yet (see EMAILJS_SETUP.md). You can still send this through Gmail.', gmailFallback())
+    } else if (r.reason === 'cooldown') {
+      play('error'); say('warn', 'Message already sent. Please wait ' + r.detail + 's before sending another.')
+    } else {
+      play('error'); say('err', r.reason === 'network' ? 'Couldn’t reach the mail server. Check your connection and try again.' : 'The mail server rejected the message. Please try again, or use WhatsApp / Gmail below.', gmailFallback())
     }
-    const name = h('input', { autocomplete: 'name' }), mail = h('input', { type: 'email', autocomplete: 'email' }), msg = h('textarea', { rows: 5 }), err = h('p.err.ui', { role: 'alert' })
-    clear(right).append(h('form.panel.p5', { novalidate: true, onsubmit: (e) => {
-      e.preventDefault()
-      if (!name.value.trim() || !/^\S+@\S+\.\S+$/.test(mail.value) || msg.value.trim().length < 5) { err.textContent = 'Enter your name, a valid email and a message.'; play('error'); return }
-      err.textContent = ''; play('accept')
-      pushToast({ kind: 'wanted', title: 'MESSAGE READY', text: 'Opening Gmail with your message.', clear: true })
-      openUrl(composeUrl('Portfolio message from ' + name.value, msg.value + '\n\n— ' + name.value + ' (' + mail.value + ')'))
-    } }, h('div.label.accent', 'Reply'), h('h2.title', { style: { fontSize: '40px' } }, 'Send a message'),
-      h('label.field', h('span.label', 'Name'), name), h('label.field', h('span.label', 'Email'), mail), h('label.field', h('span.label', 'Message'), msg), err,
-      h('button.btn.primary', { style: { width: '100%', marginTop: '12px' } }, ico('send', 15), 'Send message'),
-      h('p.dim', { style: { fontSize: '12px', marginTop: '8px' } }, 'This opens a Gmail compose window addressed to ' + OWNER.email + '. Prefer WhatsApp? Use the phone.')))
-  }
+  } },
+    h('div.bar4'),
+    h('div.mb-in',
+      h('div.mb-head', h('div', h('div.label.accent', 'New message'), h('h2.title', 'Message Yaman')), h('span.mb-pill.ui', h('i'), 'Direct to inbox')),
+      h('p.dim', { style: { margin: '6px 0 4px', fontSize: '14px' } }, 'Fill this in and it lands straight in my mailbox. No mail app needed.'),
+      h('div.mb-row', h('label.field', h('span.label', 'Your name'), nameIn), h('label.field', h('span.label', 'Your email'), mailIn)),
+      h('label.field', h('span.label', 'Subject'), subjIn),
+      h('label.field', h('span.label', { style: { display: 'flex', justifyContent: 'space-between' } }, 'Message', count), msgIn),
+      trap, status, h('div', { style: { marginTop: '14px' } }, btn)))
+
+  const quick = h('div.row', { style: { marginTop: '16px' } }, h('span.label', { style: { alignSelf: 'center', marginRight: '4px' } }, 'Or reach me directly'),
+    h('button.btn.sm', { onclick: () => openExternal('whatsapp') }, ico('whatsapp', 14), 'WhatsApp'), h('a.btn.sm', { href: OWNER.phoneHref, onclick: () => play('click') }, ico('phone', 14), 'Call'),
+    h('button.btn.sm', { onclick: () => openExternal('email') }, ico('mail', 14), 'Gmail'), h('button.btn.sm', { onclick: () => openExternal('linkedin') }, ico('linkedin', 14), 'LinkedIn'), h('button.btn.sm', { onclick: () => openExternal('github') }, ico('github', 14), 'GitHub'))
+
+  /* --- phone --- */
   clear(phoneList).append(h('div.ph-head', h('b', 'Contacts')), h('div', { style: { textAlign: 'center', padding: '12px 16px' } }, h('span', { style: { width: '64px', height: '64px', borderRadius: '50%', background: 'var(--accent)', color: '#000', display: 'inline-grid', placeItems: 'center', font: 'bold 24px var(--f-body)' } }, 'YC'), h('div.title', { style: { fontSize: '24px', marginTop: '4px' } }, 'Yaman Choudhary')), contactRows())
   setTimeout(() => {
-    if (G.path !== '/contact' || showForm) return
+    if (G.path !== '/contact') return
     play('notify')
-    notif = h('div.ph-notif', h('div.nt', '✉ New message'), h('div.nb', '“Interested in working together?”'), h('div.row', { style: { marginTop: '8px' } }, h('button.pill.y', { onclick: toForm }, 'REPLY'), h('button.pill', { onclick: () => { notif.remove(); play('back') } }, 'Dismiss')))
+    notif = h('div.ph-notif', h('div.nt', '✉ New message'), h('div.nb', '“Interested in working together?”'), h('div.row', { style: { marginTop: '8px' } }, h('button.pill.y', { onclick: focusForm }, 'REPLY'), h('button.pill', { onclick: () => { notif.remove(); play('back') } }, 'Dismiss')))
     phoneList.insertBefore(notif, phoneList.children[1])
   }, 700)
-  drawRight()
   const phone = h('div', { style: { width: '320px', height: '600px', maxWidth: '100%', margin: '0 auto', animation: 'phoneIn .7s both' } }, phoneFrame(phoneList, { height: '100%' }))
-  return { el: frame('CONTACT', '07 · Phone', h('div.contact-grid', phone, right)) }
+  return { el: frame('CONTACT', '07 · Phone', h('div.contact-grid', phone, h('div', form, quick))) }
 }
 
 /* ---------- RESUME ---------- */

@@ -1,0 +1,44 @@
+<!-- EmailJS template #1: "New message" — sent TO YOU when someone uses the portfolio message box.
+     Variables used: {{from_name}} {{from_email}} {{subject}} {{message}} {{sent_at}} {{site}}
+     Paste everything below into: EmailJS → Email Templates → (your template) → Edit Content → Code Editor (<>) -->
+<div style="margin:0;padding:0;background:#050608;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#050608;padding:32px 12px;">
+ <tr><td align="center">
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background:#0b0d11;border:1px solid #23262d;">
+   <!-- accent bar -->
+   <tr><td style="height:6px;line-height:6px;font-size:0;background:#f5b01c;">&nbsp;</td></tr>
+   <!-- header -->
+   <tr><td style="padding:28px 32px 8px 32px;">
+     <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>
+       <td style="font-family:'Arial Narrow',Arial,Helvetica,sans-serif;font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#f5b01c;">&#9670; Los Santos &middot; Incoming message</td>
+       <td align="right" style="font-family:'Arial Narrow',Arial,Helvetica,sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6b7280;">{{sent_at}}</td>
+     </tr></table>
+     <div style="font-family:Impact,'Arial Black',Haettenschweiler,'Arial Narrow Bold',sans-serif;font-size:44px;line-height:46px;letter-spacing:2px;text-transform:uppercase;color:#ffffff;margin-top:14px;">New message<br><span style="color:#f5b01c;">from {{from_name}}</span></div>
+   </td></tr>
+   <!-- sender card -->
+   <tr><td style="padding:18px 32px 0 32px;">
+     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#12151b;border-left:4px solid #f5b01c;">
+       <tr><td style="padding:14px 18px;">
+         <div style="font-family:'Arial Narrow',Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#6b7280;">From</div>
+         <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#ffffff;margin-top:2px;"><strong>{{from_name}}</strong> &lt;<a href="mailto:{{from_email}}" style="color:#f5b01c;text-decoration:none;">{{from_email}}</a>&gt;</div>
+         <div style="font-family:'Arial Narrow',Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#6b7280;margin-top:14px;">Subject</div>
+         <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#ffffff;margin-top:2px;">{{subject}}</div>
+       </td></tr>
+     </table>
+   </td></tr>
+   <!-- message -->
+   <tr><td style="padding:22px 32px 0 32px;">
+     <div style="font-family:'Arial Narrow',Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#6b7280;margin-bottom:8px;">Message</div>
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:25px;color:#e5e7eb;white-space:pre-wrap;background:#0f1217;border:1px solid #23262d;padding:18px 20px;">{{message}}</div>
+   </td></tr>
+   <!-- reply button -->
+   <tr><td style="padding:26px 32px 8px 32px;">
+     <a href="mailto:{{from_email}}?subject=Re:%20{{subject}}" style="display:inline-block;background:#f5b01c;color:#000000;font-family:'Arial Narrow',Arial,sans-serif;font-weight:bold;font-size:15px;letter-spacing:3px;text-transform:uppercase;text-decoration:none;padding:14px 28px;">&#9658; Reply to {{from_name}}</a>
+   </td></tr>
+   <tr><td style="padding:18px 32px 28px 32px;">
+     <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#6b7280;border-top:1px solid #23262d;padding-top:14px;">Sent from your portfolio message box &middot; <a href="{{site}}" style="color:#9ca3af;">{{site}}</a><br>Hitting reply in your mail app will also answer {{from_name}} directly (Reply-To is set).</div>
+   </td></tr>
+  </table>
+ </td></tr>
+</table>
+</div>
